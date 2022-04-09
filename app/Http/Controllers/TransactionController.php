@@ -109,7 +109,36 @@ class TransactionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $transaction = Transaction::findOrFail($id);
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'title' => ['required'],
+            'amount' => ['required', 'numeric'],
+            'type' => ['required', 'in:income,expense'],
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // if validation passes
+        try {
+            $transaction->update($request->all());
+
+            $response = [
+                'message' => 'Transaction created successfully',
+                'data' => $transaction,
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Failed to create transaction' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
