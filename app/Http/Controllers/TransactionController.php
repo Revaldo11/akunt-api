@@ -86,7 +86,14 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        // find transaction by id
+        $transaction = Transaction::findOrFail($id);
+        $response = [
+            'message' => 'Details for transaction',
+            'data' => $transaction,
+        ];
+
+        return response()->json($response, Response::HTTP_OK);
     }
 
     /**
@@ -97,7 +104,7 @@ class TransactionController extends Controller
      */
     public function edit($id)
     {
-        //
+        // $transaction
     }
 
     /**
@@ -109,7 +116,7 @@ class TransactionController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        // find transaction by id
         $transaction = Transaction::findOrFail($id);
 
         // Validate the request
@@ -149,6 +156,22 @@ class TransactionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // find transaction by id
+        $transaction = Transaction::findOrFail($id);
+
+        // if validation passes
+        try {
+            $transaction->delete();
+
+            $response = [
+                'message' => 'Transaction deleted successfully',
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Failed to create transaction' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
